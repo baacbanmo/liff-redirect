@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>LIFF Redirect to Google Form</title>
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  </head>
+  <body>
+    <p id="msg">กำลังพาคุณไปยังแบบฟอร์ม...</p>
+
+    <script>
+      window.onload = async function () {
+        try {
+          const liffId = "2007632611-XV8wdkR7"; // เปลี่ยนเป็น LIFF ID ของคุณ
+          document.getElementById("msg").innerText = "กำลังโหลด LIFF...";
+
+          await liff.init({ liffId });
+
+          if (!liff.isLoggedIn()) {
+            document.getElementById("msg").innerText = "กำลังเข้าสู่ระบบ...";
+            liff.login({ redirectUri: window.location.href });
+            return;
+          }
+
+          const profile = await liff.getProfile();
+          const userId = profile.userId;
+
+          const formType = new URLSearchParams(window.location.search).get("form");
+          let targetUrl = "";
+
+          if (formType === "leave") {
+            targetUrl = "https://docs.google.com/forms/d/e/1FAIpQLSdfWO8tAIboMuYoZzuQJ1MGDJ1IveoPX6XbX-sEWAEFHpTZHg/viewform?usp=pp_url&entry.400456618=" + userId;
+          } else if (formType === "outside") {
+            targetUrl = "https://docs.google.com/forms/d/e/1FAIpQLSexw6ckeyKf4t4xCA83gM_RqaGi3zSRkFiPitDHySe3GrOMFA/viewform?usp=pp_url&entry.1121857617=" + userId;
+          } else {
+            document.getElementById("msg").innerText = "❌ ไม่พบฟอร์ม";
+            return;
+          }
+
+          document.getElementById("msg").innerText = "🔁 กำลังพาคุณไปยังฟอร์ม...";
+          setTimeout(() => {
+            window.location.href = targetUrl;
+          }, 500);
+        } catch (err) {
+          document.getElementById("msg").innerText = "❌ เกิดข้อผิดพลาด: " + err;
+          console.error(err);
+        }
+      };
+    </script>
+  </body>
+</html>
