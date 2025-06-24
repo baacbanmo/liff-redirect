@@ -2,6 +2,7 @@
 <html>
   <head>
     <meta charset="UTF-8">
+    <title>LIFF Redirect</title>
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   </head>
   <body>
@@ -9,47 +10,38 @@
 
     <script>
       window.onload = async function () {
-        try {
-          alert("เริ่มทำงานแล้ว");
-          console.log("เริ่มทำงานแล้ว");
+        const liffId = "2007632611-XV8wdkR7"; // เปลี่ยนเป็น LIFF ID ของคุณ
 
-          const liffId = "2007632611-XV8wdkR7";
+        try {
           await liff.init({ liffId });
-          alert("LIFF init สำเร็จ");
 
           if (!liff.isLoggedIn()) {
-            alert("ยังไม่ login, กำลัง redirect ไป login");
-            liff.login({
-              redirectUri: window.location.href
-            });
+            liff.login();
             return;
           }
 
           const profile = await liff.getProfile();
-          alert("ได้ userId: " + profile.userId);
+          const userId = profile.userId;
 
           const formType = new URLSearchParams(window.location.search).get("form");
           let targetUrl = "";
 
           if (formType === "leave") {
-            targetUrl = "https://docs.google.com/forms/d/e/1FAIpQLSdfWO8tAIboMuYoZzuQJ1MGDJ1IveoPX6XbX-sEWAEFHpTZHg/viewform?usp=pp_url&entry.400456618=" + profile.userId;
+            targetUrl = "https://docs.google.com/forms/d/e/1FAIpQLSdfWO8tAIboMuYoZzuQJ1MGDJ1IveoPX6XbX-sEWAEFHpTZHg/viewform" +
+                        "?usp=pp_url&entry.400456618=" + encodeURIComponent(userId);
           } else if (formType === "outside") {
-            targetUrl = "https://docs.google.com/forms/d/e/1FAIpQLSexw6ckeyKf4t4xCA83gM_RqaGi3zSRkFiPitDHySe3GrOMFA/viewform?usp=pp_url&entry.1121857617=" + profile.userId;
+            targetUrl = "https://docs.google.com/forms/d/e/1FAIpQLSexw6ckeyKf4t4xCA83gM_RqaGi3zSRkFiPitDHySe3GrOMFA/viewform" +
+                        "?usp=pp_url&entry.1121857617=" + encodeURIComponent(userId);
           } else {
-            alert("❌ ไม่พบฟอร์ม");
+            document.getElementById("msg").innerText = "❌ ไม่พบคำสั่งฟอร์ม";
             return;
           }
 
-          alert("กำลัง redirect ไปที่: " + targetUrl);
-          document.getElementById("msg").innerText = "กำลัง redirect ไปยังฟอร์ม...";
-
-          // redirect แบบใหม่
-          setTimeout(() => {
-            window.location.href = targetUrl;
-          }, 500);
+          // redirect โดยตรง
+          window.location.replace(targetUrl);
 
         } catch (err) {
-          alert("เกิดข้อผิดพลาด: " + err);
+          document.getElementById("msg").innerText = "เกิดข้อผิดพลาด: " + err;
           console.error(err);
         }
       };
